@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario Seccionado Aleatorio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            width: 450px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button[disabled] {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        button:hover:not([disabled]) {
+            background-color: #45a049;
+        }
+
+        h3 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <form id="randomForm">
+
+            <!-- Sección 1 -->
+            <div class="section active" id="section1">
+                <h3>Información Personal</h3>
+                <label for="nombre">Nombre Completo:</label>
+                <input type="text" id="nombre" name="nombre" required><br><br>
+                <label for="correo">Correo Electrónico:</label>
+                <input type="email" id="correo" name="correo" required><br><br>
+                <label for="telefono">Teléfono:</label>
+                <input type="tel" id="telefono" name="telefono" required><br><br>
+            </div>
+
+            <!-- Sección 2 -->
+            <div class="section" id="section2">
+                <h3>Información de Contacto</h3>
+                <label for="direccion">Dirección:</label>
+                <input type="text" id="direccion" name="direccion" required><br><br>
+                <label for="ciudad">Ciudad:</label>
+                <input type="text" id="ciudad" name="ciudad" required><br><br>
+                <label for="pais">País:</label>
+                <input type="text" id="pais" name="pais" required><br><br>
+            </div>
+
+            <!-- Sección 3 -->
+            <div class="section" id="section3">
+                <h3>Detalles Financieros</h3>
+                <label for="metodo_pago">Método de Pago:</label>
+                <select id="metodo_pago" name="metodo_pago" required>
+                    <option value="">Seleccione</option>
+                    <option value="tarjeta">Tarjeta</option>
+                    <option value="transferencia">Transferencia</option>
+                    <option value="paypal">PayPal</option>
+                </select><br><br>
+                <label for="cuenta_bancaria">Número de Cuenta:</label>
+                <input type="text" id="cuenta_bancaria" name="cuenta_bancaria" required><br><br>
+            </div>
+
+            <!-- Sección 4 -->
+            <div class="section" id="section4">
+                <h3>Documentación</h3>
+                <label for="identificacion">Subir Identificación Oficial:</label>
+                <input type="file" id="identificacion" name="identificacion" required><br><br>
+                <label for="comprobante_domicilio">Subir Comprobante de Domicilio:</label>
+                <input type="file" id="comprobante_domicilio" name="comprobante_domicilio" required><br><br>
+            </div>
+
+            <!-- Botones de navegación -->
+            <div class="buttons">
+                <button type="button" id="prevBtn" onclick="navigate(-1)" disabled>Anterior</button>
+                <button type="button" id="nextBtn" onclick="navigate(1)">Siguiente</button>
+            </div>
+
+        </form>
+    </div>
+
+    <script>
+        let currentSection = 0;
+        const sections = document.querySelectorAll('.section');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        function showSection(index) {
+            sections.forEach((section, i) => {
+                section.classList.toggle('active', i === index);
+            });
+            prevBtn.disabled = (index === 0);
+            nextBtn.textContent = (index === sections.length - 1) ? 'Enviar' : 'Siguiente';
+        }
+
+        function navigate(direction) {
+            const form = document.getElementById('randomForm');
+            // Validar la sección actual antes de avanzar
+            if (direction === 1) {
+                const inputs = sections[currentSection].querySelectorAll('input, select');
+                for (let input of inputs) {
+                    if (!input.checkValidity()) {
+                        input.reportValidity();
+                        return;
+                    }
+                }
+            }
+
+            currentSection += direction;
+            if (currentSection >= sections.length) {
+                form.submit(); // Enviar el formulario cuando llega al final
+            } else {
+                showSection(currentSection); // Mostrar la siguiente sección
+            }
+        }
+
+        // Inicializar el formulario mostrando la primera sección
+        showSection(currentSection);
+    </script>
+
+</body>
+</html>

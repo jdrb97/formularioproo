@@ -3,160 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario Seccionado Aleatorio</title>
+    <title>Visualización de Cojines</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            touch-action: none; /* Previene scroll al hacer zoom o mover elementos */
         }
 
-        .form-container {
-            background-color: white;
-            padding: 20px;
-            width: 450px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        #camera {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
-        .section {
-            display: none;
+        .cushion {
+            position: absolute;
+            touch-action: none;
+            width: 100px;
+            height: 100px;
+            cursor: move;
         }
 
-        .section.active {
-            display: block;
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
         }
 
-        .buttons {
-            margin-top: 20px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        button {
-            padding: 10px 20px;
-            border: none;
-            background-color: #4CAF50;
-            color: white;
+        .controls button {
+            padding: 10px 15px;
+            margin: 5px;
+            font-size: 16px;
             cursor: pointer;
-            border-radius: 5px;
-        }
-
-        button[disabled] {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-        button:hover:not([disabled]) {
-            background-color: #45a049;
-        }
-
-        h3 {
-            margin-top: 0;
         }
     </style>
 </head>
 <body>
+    <video id="camera" autoplay playsinline></video>
 
-    <div class="form-container">
-        <form id="randomForm">
-
-            <!-- Sección 1 -->
-            <div class="section active" id="section1">
-                <h3>Información Personal</h3>
-                <label for="nombre">Nombre Completo:</label>
-                <input type="text" id="nombre" name="nombre" required><br><br>
-                <label for="correo">Correo Electrónico:</label>
-                <input type="email" id="correo" name="correo" required><br><br>
-                <label for="telefono">Teléfono:</label>
-                <input type="tel" id="telefono" name="telefono" required><br><br>
-            </div>
-
-            <!-- Sección 2 -->
-            <div class="section" id="section2">
-                <h3>Información de Contacto</h3>
-                <label for="direccion">Dirección:</label>
-                <input type="text" id="direccion" name="direccion" required><br><br>
-                <label for="ciudad">Ciudad:</label>
-                <input type="text" id="ciudad" name="ciudad" required><br><br>
-                <label for="pais">País:</label>
-                <input type="text" id="pais" name="pais" required><br><br>
-            </div>
-
-            <!-- Sección 3 -->
-            <div class="section" id="section3">
-                <h3>Detalles Financieros</h3>
-                <label for="metodo_pago">Método de Pago:</label>
-                <select id="metodo_pago" name="metodo_pago" required>
-                    <option value="">Seleccione</option>
-                    <option value="tarjeta">Tarjeta</option>
-                    <option value="transferencia">Transferencia</option>
-                    <option value="paypal">PayPal</option>
-                </select><br><br>
-                <label for="cuenta_bancaria">Número de Cuenta:</label>
-                <input type="text" id="cuenta_bancaria" name="cuenta_bancaria" required><br><br>
-            </div>
-
-            <!-- Sección 4 -->
-            <div class="section" id="section4">
-                <h3>Documentación</h3>
-                <label for="identificacion">Subir Identificación Oficial:</label>
-                <input type="file" id="identificacion" name="identificacion" required><br><br>
-                <label for="comprobante_domicilio">Subir Comprobante de Domicilio:</label>
-                <input type="file" id="comprobante_domicilio" name="comprobante_domicilio" required><br><br>
-            </div>
-
-            <!-- Botones de navegación -->
-            <div class="buttons">
-                <button type="button" id="prevBtn" onclick="navigate(-1)" disabled>Anterior</button>
-                <button type="button" id="nextBtn" onclick="navigate(1)">Siguiente</button>
-            </div>
-
-        </form>
+    <div class="controls">
+        <button onclick="addCushion('cushion1.png')">Agregar Cojín 1</button>
+        <button onclick="addCushion('cushion2.png')">Agregar Cojín 2</button>
+        <button onclick="addCushion('cushion3.png')">Agregar Cojín 3</button>
     </div>
 
     <script>
-        let currentSection = 0;
-        const sections = document.querySelectorAll('.section');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-
-        function showSection(index) {
-            sections.forEach((section, i) => {
-                section.classList.toggle('active', i === index);
-            });
-            prevBtn.disabled = (index === 0);
-            nextBtn.textContent = (index === sections.length - 1) ? 'Enviar' : 'Siguiente';
+        // Acceder a la cámara
+        const camera = document.getElementById('camera');
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(stream => {
+                    camera.srcObject = stream;
+                })
+                .catch(error => {
+                    console.error("Error al acceder a la cámara: ", error);
+                });
         }
 
-        function navigate(direction) {
-            const form = document.getElementById('randomForm');
-            // Validar la sección actual antes de avanzar
-            if (direction === 1) {
-                const inputs = sections[currentSection].querySelectorAll('input, select');
-                for (let input of inputs) {
-                    if (!input.checkValidity()) {
-                        input.reportValidity();
-                        return;
-                    }
+        // Agregar cojines
+        function addCushion(imageSrc) {
+            const img = document.createElement('img');
+            img.src = imageSrc;
+            img.classList.add('cushion');
+            document.body.appendChild(img);
+
+            makeDraggableAndResizable(img);
+        }
+
+        // Hacer la imagen arrastrable y redimensionable con gestos táctiles
+        function makeDraggableAndResizable(element) {
+            let posX = 0, posY = 0, initialX = 0, initialY = 0;
+            let scale = 1, initialDistance = 0;
+            let isResizing = false;
+
+            element.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    // Movimiento
+                    initialX = e.touches[0].clientX - posX;
+                    initialY = e.touches[0].clientY - posY;
+                } else if (e.touches.length === 2) {
+                    // Redimensionar
+                    initialDistance = getDistance(e.touches[0], e.touches[1]);
+                    isResizing = true;
                 }
-            }
+            });
 
-            currentSection += direction;
-            if (currentSection >= sections.length) {
-                form.submit(); // Enviar el formulario cuando llega al final
-            } else {
-                showSection(currentSection); // Mostrar la siguiente sección
+            element.addEventListener('touchmove', (e) => {
+                if (e.touches.length === 1 && !isResizing) {
+                    // Arrastrar
+                    e.preventDefault();
+                    posX = e.touches[0].clientX - initialX;
+                    posY = e.touches[0].clientY - initialY;
+                    element.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+                } else if (e.touches.length === 2 && isResizing) {
+                    // Redimensionar
+                    e.preventDefault();
+                    let currentDistance = getDistance(e.touches[0], e.touches[1]);
+                    scale = scale * (currentDistance / initialDistance);
+                    initialDistance = currentDistance;
+                    element.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+                }
+            });
+
+            element.addEventListener('touchend', (e) => {
+                isResizing = false;
+            });
+
+            // Calcular la distancia entre dos puntos
+            function getDistance(touch1, touch2) {
+                return Math.sqrt(Math.pow(touch2.clientX - touch1.clientX, 2) + Math.pow(touch2.clientY - touch1.clientY, 2));
             }
         }
-
-        // Inicializar el formulario mostrando la primera sección
-        showSection(currentSection);
     </script>
-
 </body>
 </html>
